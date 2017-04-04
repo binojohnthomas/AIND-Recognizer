@@ -68,6 +68,7 @@ class SelectorBIC(ModelSelector):
     Bayesian information criteria: BIC = -2 * logL + p * logN
     """
 
+
     def select(self):
         """ select the best model for self.this_word based on
         BIC score for n between self.min_n_components and self.max_n_components
@@ -100,27 +101,21 @@ class SelectorBIC(ModelSelector):
              # calculate log loss for the model
 
              logL = hmm_model.score(self.X, self.lengths)
-
-            # compute the number of parameters in the model
-
-             #p = num_states * (num_states - 1) * 2 * feature_cnt * num_states
              p = num_states * (feature_cnt * 2 + 1)
              logN = np.log(len(self.X))
-             #print(len(self.X)) # size of data
-                # Calculate BIC score using provided calculation and above model parameters
-
+            # Calculate BIC score using provided calculation and above model parameters
              BIC_Score = -2 * logL + p * logN
-            #BIC_Score =-2*np.log(len(self.X)) + p*
-             #print("BIC for %d components is %d" % (num_states,BIC_Score))
-             #for mimiumm score
-             if best_BIC_Score>BIC_Score:
-                 best_hmm_model=hmm_model
-                 best_BIC_Score=BIC_Score
+            except:
+                BIC_Score=float("inf")
+                best_hmm_model=None
+
+            if best_BIC_Score>BIC_Score:
+                best_hmm_model=hmm_model
+                best_BIC_Score=BIC_Score
 
              #    pass
             #n += 1
-            except:
-              pass
+
         #print("best BIC  is %d" % ( best_BIC_Score))
 
         return best_hmm_model
@@ -153,7 +148,7 @@ class SelectorDIC(ModelSelector):
                 LogLi = hmm_model.score(self.X, self.lengths)
 
             except:
-                pass
+                LogLi=float("-inf")
 
             SumLogL = 0
 
@@ -177,7 +172,8 @@ class SelectorDIC(ModelSelector):
 
 
             #DIC = log(P(X(i)) - 1/(M-1)SUM(log(P(X(all but i))
-            DIC_Score = LogLi - (1 / (M - 1)) * (SumLogL-LogLi)
+            #0 if LogLi == float("-inf") else LogLi
+            DIC_Score = LogLi - (1 / (M - 1)) * (SumLogL-(0 if LogLi == float("-inf") else LogLi))
             #DIC_Score = LogLi - (1 / (M - 1)) * (LogLSum)
             #print("DIC for %d components is %d" % (num_states, DIC_Score))
             #get maximizing score
@@ -202,6 +198,8 @@ class SelectorCV(ModelSelector):
         best_CV_Score = float('-inf')
 
         best_hmm_model = None
+        if len(self.sequences) < 2:
+            return None
 
 
         '''
@@ -227,7 +225,7 @@ TRAIN: [0 1] TEST: [2 3]
         for num_states in range(self.min_n_components, self.max_n_components + 1):
 
             SumLogL = 0
-            Counter = 1
+            Counter = 0
 
             #for cv_train, cv_test in split_method.split(self.sequences):
             for cv_train_idx, cv_test_idx in split_method.split(self.sequences):
@@ -247,11 +245,13 @@ TRAIN: [0 1] TEST: [2 3]
                     Counter += 1
 
                 except:
-                    pass
+                    LogL=0
+
 
                 SumLogL+= LogL
 
-            CV_Score = SumLogL / (Counter+1.0)
+            #AVG score
+            CV_Score = SumLogL / (1 if Counter == 0 else Counter)
             #print("CV for %d components is %d" % (num_states, CV_Score))
 
             if CV_Score>best_CV_Score:
@@ -261,3 +261,12 @@ TRAIN: [0 1] TEST: [2 3]
         return best_hmm_model
 
 
+
+
+# For testing purposes
+if __name__ == "__main__":
+    from  asl_test_model_selectors import TestSelectors
+    test_model = TestSelectors()
+    test_model.setUp()
+    test_model.test_select_constant_interface()
+    test_model.test_select_cv_interface()
