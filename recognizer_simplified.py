@@ -99,8 +99,12 @@ asl.df['grnd-ly-norm'] = (asl.df['grnd-ly'] - grnd_ly_mean) / grnd_ly_std
 
 features_custom_ground_norm = ['grnd_rx-norm', 'grnd-ry-norm', 'grnd-lx-norm', 'grnd-ly-norm']
 
-features_custom_combine_polar_and_ground_norm=features_custom_ground_norm+features_custom_polar_norm
-features_custom_combine_polar_and_ground=features_custom_polar_norm+ features_ground
+features_custom_combine_polarnorm_and_ground=features_custom_polar_norm+ features_ground
+features_custom_combine_polarnorm_and_groundnorm=features_custom_ground_norm+features_custom_polar_norm
+features_custom_combine_polar_and_ground=features_polar+ features_ground
+features_custom_combine_polar_and_groundnorm=features_polar+ features_custom_ground_norm
+features_custom_combine_all_base_features= features_polar+features_ground+features_delta+features_norm
+
 
 def train_all_words(features, model_selector):
     training = asl.build_training(features)  # Experiment here with different feature sets defined in part 1
@@ -114,8 +118,9 @@ def train_all_words(features, model_selector):
     return model_dict
 
 model_selector_list =[SelectorCV,SelectorDIC, SelectorBIC]
-features_list = [features_custom_polar_norm,features_custom_ground_norm,features_custom_combine_polar_and_ground_norm,features_custom_combine_polar_and_ground]
+#features_list = [features_custom_polar_norm,features_custom_ground_norm,features_custom_combine_polar_and_ground_norm,features_custom_combine_polar_and_ground]
 #features_list=[features_polar,features_ground,features_norm,features_delta]
+features_list=[features_custom_combine_all_base_features]
 
 for m_selector in  model_selector_list:
     for feature in features_list:

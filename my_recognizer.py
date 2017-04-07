@@ -19,15 +19,14 @@ def recognize(models: dict, test_set: SinglesData):
    """
     warnings.filterwarnings("ignore", category=DeprecationWarning)
 
-    #probablty list
+    # probablty list
     probabilities = []
     guesses = []
-    # TODO implement the recognizer
-    #words =filter(None,models.keys())
+    # words =filter(None,models.keys())
 
     for idx, _ in test_set.get_all_Xlengths().items():
         X, lengths = test_set.get_item_Xlengths(idx)
-        #list of dictionaries where each key a word and value is Log Liklihood
+        # list of dictionaries where each key a word and value is Log Liklihood
         LogL_dict = {}
         for word, model in models.items():
             try:
@@ -37,19 +36,16 @@ def recognize(models: dict, test_set: SinglesData):
                 LogL_dict[word] = float('-inf')
         # insert dict to probablies list
         probabilities.append(LogL_dict)
-        #insert max of the li
-        #print(max(LogL_dict))
+        # insert max of the li
+        # print(max(LogL_dict))
         guesses.append(max(LogL_dict, key=LogL_dict.get))
 
-        #print(guesses.Lo)
     return probabilities, guesses
-
-
-
 
 
 if __name__ == "__main__":
     from  asl_test_recognizer import TestRecognize
+
     test_model = TestRecognize()
     test_model.setUp()
     test_model.test_recognize_probabilities_interface()
