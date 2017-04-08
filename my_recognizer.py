@@ -37,15 +37,9 @@ def recognize(models: dict, test_set: SinglesData):
         # insert dict to probablies list
         probabilities.append(LogL_dict)
         # insert max of the li
-        # print(max(LogL_dict))
+
         guesses.append(max(LogL_dict, key=LogL_dict.get))
 
     return probabilities, guesses
 
 
-if __name__ == "__main__":
-    from  asl_test_recognizer import TestRecognize
-
-    test_model = TestRecognize()
-    test_model.setUp()
-    test_model.test_recognize_probabilities_interface()

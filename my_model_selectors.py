@@ -88,9 +88,9 @@ class SelectorBIC(ModelSelector):
 
                 hmm_model = GaussianHMM(n_components=num_states, covariance_type="diag", n_iter=1000,
                                         random_state=self.random_state, verbose=False).fit(self.X, self.lengths)
-                # calculate Likilihook log  for the model
+                # calculate Likilihood log  for the model
                 logL = hmm_model.score(self.X, self.lengths)
-
+                # number of parameter
                 p = num_states * (feature_cnt * 2 + 1)
                 logN = np.log(len(self.X))
                 # Calculate BIC score using provided calculation and above model parameters
@@ -98,7 +98,7 @@ class SelectorBIC(ModelSelector):
             except:
                 BIC_Score = float("inf")
                 best_hmm_model = None
-
+            # choose the best model
             if best_BIC_Score > BIC_Score:
                 best_hmm_model = hmm_model
                 best_BIC_Score = BIC_Score
@@ -153,9 +153,10 @@ class SelectorDIC(ModelSelector):
 
             # 0 if LogLi == float("-inf") else LogLi
             DIC_Score = LogLi - (1 / (M - 1)) * (SumLogL - (0 if LogLi == float("-inf") else LogLi))
-            # DIC_Score = LogLi - (1 / (M - 1)) * (LogLSum)
+
             # print("DIC for %d components is %d" % (num_states, DIC_Score))
             # get maximizing score
+            # choose the best model
             if DIC_Score > best_DIC_Score:
                 best_DIC_Score = DIC_Score
                 best_hmm_model = hmm_model
